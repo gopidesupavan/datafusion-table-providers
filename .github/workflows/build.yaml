@@ -23,16 +23,24 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install system dependencies for ODBC
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unixodbc-dev libsqliteodbc
+
       - name: Install Maturin
         run: pip install maturin
 
       - name: Build manylinux wheel
         working-directory: python
+        env:
+          PYO3_PYTHON: python3  # ensure Rust extension links against active Python
+          RUST_BACKTRACE: 1
         run: |
-          maturin build --release --manylinux 2_36 --interpreter python${{ matrix.python-version }}
+          maturin build --release --manylinux 2_36 --out dist
 
       - name: Upload built wheels
         uses: actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.python-version }}
-          path: python/target/wheels/*.whl
+          path: python/dist/*.whl

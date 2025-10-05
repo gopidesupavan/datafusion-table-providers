@@ -27,20 +27,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y unixodbc-dev libsqliteodbc
 
-      - name: Install maturin
-        run: pip install maturin
-
       - name: Build manylinux wheels from python/ folder (default features)
         uses: PyO3/maturin-action@v1
         env:
           RUST_BACKTRACE: 1
-          PYO3_PYTHON: /opt/python/cp310-cp310/bin/python3
+          PYO3_PYTHON: /opt/python/cp310-cp310/bin/python3  # Use Python 3.10 explicitly
         with:
-          rust-toolchain: stable
-          manylinux: auto
+          rust-toolchain: nightly
           target: x86_64
+          manylinux: auto
+          rustup-components: rust-std rustfmt  # Keep in one line due to https://github.com/PyO3/maturin-action/issues/153
           working-directory: python
-          args: --release --manylinux 2014 --out dist
+          args: --release --manylinux 2014 --out dist  # Add --features if needed for optional features
 
       - name: Upload built wheels as artifacts
         uses: actions/upload-artifact@v4

@@ -22,6 +22,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install system dependencies for ODBC
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unixodbc-dev libsqliteodbc
+
       - name: Install maturin
         run: pip install maturin
 
@@ -29,12 +34,12 @@ jobs:
         uses: PyO3/maturin-action@v1
         env:
           RUST_BACKTRACE: 1
+          PYO3_PYTHON: python3  # ensures Rust extension builds with the active Python
         with:
           rust-toolchain: stable
           manylinux: auto
           target: x86_64
           working-directory: python
-          # Default features are used automatically if we don't override
           args: --release --manylinux 2014 --out dist
 
       - name: Upload built wheels as artifacts

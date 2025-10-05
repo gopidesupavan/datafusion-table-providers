@@ -1,0 +1,44 @@
+name: Build Manylinux Wheels (Default Features)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-wheels:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install maturin
+        run: pip install maturin
+
+      - name: Build manylinux wheels from python/ folder (default features)
+        uses: PyO3/maturin-action@v1
+        env:
+          RUST_BACKTRACE: 1
+        with:
+          rust-toolchain: stable
+          manylinux: auto
+          target: x86_64
+          working-directory: python
+          # Default features are used automatically if we don't override
+          args: --release --manylinux 2014 --out dist
+
+      - name: Upload built wheels as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.python-version }}
+          path: python/dist/*.whl

@@ -34,7 +34,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         env:
           RUST_BACKTRACE: 1
-          PYO3_PYTHON: python3  # ensures Rust extension builds with the active Python
+          PYO3_PYTHON: /opt/python/cp310-cp310/bin/python3
         with:
           rust-toolchain: stable
           manylinux: auto
